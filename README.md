@@ -4,7 +4,7 @@ This project allows you to issue voice commands to Internet-enabled vehicles.
 
 ## What is the tech stack?
 
-- React UI for sending voice commands. This React UI is purely a 
+- React UI for sending voice commands. This React UI is purely a prototype interface; in future iterations, I'm aiming to integrate with Siri and/or other voice assistants.
 - FastAPI Python backend for processing voice commands.
 - [SmartCar API](https://smartcar.com/docs/api-reference/intro) for interacting with vehicles.
     - While I've developed this project specifically with Teslas in mind, I've chosen to use SmartCar to be able to expand to other vehicle manufacturers in the future. Some of the endpoints in the project are specific to Teslas, so please try it out with a Tesla for this initial MVP.
@@ -29,7 +29,7 @@ export REACT_APP_SERVER=http://localhost:8000
 - In the `ui` directory, run `npm install` and then `npm start`.
 - In the `api` directory, run `pip install -r requirements.txt` and then `uvicorn main:app --reload`.
 - Go to `localhost:3000`, click the Connect button and go through the Smartcar flow.
-- If you are not prompted to do so by default, then visit https://www.tesla.com/_ak/smartcar.com and add Smartcar as a third party key. See [here](https://smartcar.com/docs/help/oem-integrations/tesla/developers#commands) for more information on why this is needed.
+- If you are not prompted to do so by default, then visit https://www.tesla.com/_ak/smartcar.com and add Smartcar as a third-party key. See [here](https://smartcar.com/docs/help/oem-integrations/tesla/developers#commands) for more information on why this is needed.
 
 ## Future extensions
 
