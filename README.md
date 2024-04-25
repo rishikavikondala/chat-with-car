@@ -35,5 +35,5 @@ export REACT_APP_SERVER=http://localhost:8000
 
 - Integrate with Siri to remove the need for a React UI for issuing commands.
 - Add support for other commands and vehicles.
-- General code improvements to code quality (error handling, logging, etc.).
+- General improvements to code quality (error handling, logging, rate limiting, etc.).
 - Generalize the code to not be hardcoded for running locally (localhost).
