@@ -18,6 +18,9 @@ This project allows you to issue voice commands to Internet-enabled vehicles.
 - Create a Smartcar developer account and create a new project in that account.
 - Set the following environment variables (client id and client secret can be found in the Smartcar portal).
 ```
+export OPENAI_API_KEY=<get from OpenAI dashboard>
+export ANTHROPIC_API_KEY=<get from Anthropic console>
+
 export SMARTCAR_CLIENT_ID=<get from Smartcar dashboard>
 export SMARTCAR_CLIENT_SECRET=<get from Smartcar dashboard>
 export SMARTCAR_REDIRECT_URI=https://javascript-sdk.smartcar.com/v2/redirect?app_origin=http://localhost:3000

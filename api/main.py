@@ -45,7 +45,7 @@ async def startup_event():
 
 @app.get("/")
 async def root():
-    return {"message": "teslatalk"}
+    return {"message": "chat-with-car"}
 
 
 @app.get("/login")
