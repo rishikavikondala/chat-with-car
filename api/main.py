@@ -1,22 +1,26 @@
 import os
 import json
 import requests
+import smartcar
 from fastapi import FastAPI, UploadFile, File, Request, HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from openai import OpenAI
 from anthropic import Anthropic
-import smartcar
+from pydantic import BaseModel
+from tools import tools
+
+print(tools)
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost", "http://localhost:3000"],
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 global openai_client
@@ -26,6 +30,16 @@ global smartcar_access_token
 
 OPUS_MODEL_NAME = "claude-3-opus-20240229"
 HAIKU_MODEL_NAME = "claude-3-haiku-20240307"
+WHISPER_MODEL_NAME = "whisper-1"
+ALLOWED_SCOPES = ["read_vehicle_info", "control_security",
+                  "control_navigation", "control_trunk", "control_climate"]
+
+
+class VehicleResponse(BaseModel):
+    id: str
+    make: str
+    model: str
+    year: int
 
 
 @app.on_event("startup")
@@ -50,9 +64,7 @@ async def root():
 
 @app.get("/login")
 def login():
-    scope = ["read_vehicle_info", "control_security",
-             "control_navigation", "control_trunk", "control_climate"]
-    auth_url = smartcar_client.get_auth_url(scope)
+    auth_url = smartcar_client.get_auth_url(ALLOWED_SCOPES)
     return RedirectResponse(url=auth_url)
 
 
@@ -78,92 +90,19 @@ async def get_vehicle():
         vehicles = smartcar.get_vehicles(smartcar_access_token.access_token)
         vehicle_ids = vehicles.vehicles
 
+        # [0] will access the first vehicle listed when you authenticate with Smartcar
         vehicle = smartcar.Vehicle(
             vehicle_ids[0], smartcar_access_token.access_token)
         attributes = vehicle.attributes()
 
-        return {
-            "id": vehicle_ids[0],
-            "make": attributes.make,
-            "model": attributes.model,
-            "year": attributes.year,
-        }
+        return VehicleResponse(
+            id=vehicle_ids[0],
+            make=attributes.make,
+            model=attributes.model,
+            year=attributes.year,
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-tools = [
-    {
-        "name": "unlock",
-        "description": "Unlocks the vehicle doors",
-        "input_schema": {
-            "type": "object",
-        },
-    },
-    {
-        "name": "lock",
-        "description": "Locks the vehicle doors",
-        "input_schema": {
-            "type": "object",
-        },
-    },
-    {
-        "name": "open_trunk",
-        "description": "Opens the vehicle trunk",
-        "input_schema": {
-            "type": "",
-            "type": "object",
-        },
-    },
-    {
-        "name": "close_trunk",
-        "description": "Closes the vehicle trunk",
-        "input_schema": {
-            "type": "",
-            "type": "object",
-        },
-    },
-    {
-        "name": "open_frunk",
-        "description": "Opens the vehicle frunk",
-        "input_schema": {
-            "type": "",
-            "type": "object",
-        },
-    },
-    {
-        "name": "set_cabin_climate",
-        "description": "Sets the vehicle cabin climate",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "temperature": {
-                    "type": "number",
-                    "description": "The desired temperature in Celsius"
-                }
-            },
-            "required": ["temperature"]
-        },
-    },
-    {
-        "name": "navigate",
-        "description": "Navigate to the given latitude and longitude",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "latitude": {
-                    "type": "number",
-                    "description": "The latitude in the coordinate pair"
-                },
-                "longitude": {
-                    "type": "number",
-                    "description": "The longitude in the coordinate pair"
-                }
-            },
-            "required": ["latitude", "longitude"]
-        }
-    }
-]
 
 
 def process_tool_call(vehicle, tool_name, tool_input):
@@ -240,7 +179,7 @@ async def transcribe(file: UploadFile = File(...)):
 
     with open(file.filename, "rb") as audio_file:
         transcription = openai_client.audio.transcriptions.create(
-            model="whisper-1", file=audio_file)
+            model=WHISPER_MODEL_NAME, file=audio_file)
         command = transcription.text
         print(f"\n{'='*50}\nUser Command: {command}\n{'='*50}")
 
