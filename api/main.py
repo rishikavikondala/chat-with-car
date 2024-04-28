@@ -10,6 +10,7 @@ from openai import OpenAI
 from anthropic import Anthropic
 from pydantic import BaseModel
 from tools import tools
+from prompts import TOOL_USE_SYSTEM_PROMPT
 
 print(tools)
 
@@ -188,7 +189,7 @@ async def transcribe(file: UploadFile = File(...)):
     response = anthropic_client.beta.tools.messages.create(
         model=HAIKU_MODEL_NAME,
         max_tokens=4096,
-        system="You are an AI assistant that has access to a limited set of tools to control a vehicle. You may need to use more than one tool to accomplish the task at hand. Please feel free to any information you know to infer the best input to the tools to achieve the desired outcome.",
+        system=TOOL_USE_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": command}],
         tools=tools,
     )
