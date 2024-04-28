@@ -12,8 +12,6 @@ from pydantic import BaseModel
 from tools import tools
 from prompts import TOOL_USE_SYSTEM_PROMPT
 
-print(tools)
-
 app = FastAPI()
 
 app.add_middleware(
@@ -41,6 +39,10 @@ class VehicleResponse(BaseModel):
     make: str
     model: str
     year: int
+
+
+class CommandResponse(BaseModel):
+    text: str
 
 
 @app.on_event("startup")
@@ -80,7 +82,7 @@ def exchange(request: Request):
     return RedirectResponse(url="http://localhost:8000/vehicle")
 
 
-@app.get("/vehicle")
+@app.get("/vehicle", response_model=VehicleResponse)
 async def get_vehicle():
     global smartcar_access_token
     if not smartcar_access_token:
@@ -170,10 +172,10 @@ def process_tool_call(vehicle, tool_name, tool_input):
         response.raise_for_status()
         return "Navigation destination set"
     else:
-        raise ValueError(f"Unknown tool name: {tool_name}")
+        raise ValueError(f"Unknown tool: {tool_name}")
 
 
-@ app.post("/transcribe")
+@ app.post("/transcribe", response_model=CommandResponse)
 async def transcribe(file: UploadFile = File(...)):
     with open(file.filename, "wb") as f:
         f.write(await file.read())
@@ -208,7 +210,7 @@ async def transcribe(file: UploadFile = File(...)):
         vehicle_ids = vehicles.vehicles
 
         vehicle = smartcar.Vehicle(
-            vehicle_ids[2], smartcar_access_token.access_token)
+            vehicle_ids[0], smartcar_access_token.access_token)
 
         tool_results = []
 
@@ -250,4 +252,4 @@ async def transcribe(file: UploadFile = File(...)):
 
     print(f"\nFinal Response: {final_response}")
 
-    return {"text": final_response}
+    return CommandResponse(text=final_response)
