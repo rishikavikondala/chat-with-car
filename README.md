@@ -2,6 +2,8 @@
 
 This project allows you to issue voice commands to Internet-enabled vehicles.
 
+Selected as a winner of Anthropic's Build for Claude contest: https://twitter.com/alexalbert__/status/1783604743132365197
+
 ## What is the tech stack?
 
 - React UI for sending voice commands. This React UI is purely a prototype interface; in future iterations, I'm aiming to integrate with Siri and/or other voice assistants.
