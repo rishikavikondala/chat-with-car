@@ -2,7 +2,7 @@
 
 This project allows you to issue voice commands to Internet-enabled vehicles.
 
-Selected as a winner of Anthropic's Build for Claude contest: https://twitter.com/alexalbert__/status/1783604743132365197
+Selected as a winner of Anthropic's Build with Claude contest: https://twitter.com/alexalbert__/status/1783604743132365197
 
 ## What is the tech stack?
 
